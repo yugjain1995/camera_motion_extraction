@@ -14,7 +14,12 @@ find_packages(${DEPENDENCIES})
 find_package(Boost COMPONENTS log) 
 
 # Add executable
-add_executable(camera_motion_extraction image_subscriber.cpp)
+if(TEST_IMAGE_SUB)
+  add_executable(camera_motion_extraction image_subscriber.cpp)
+else()
+  add_executable(camera_motion_extraction feature_extraction.cpp feature_matching.cpp motion_extraction.cpp)
+endif()
+unset(TEST_IMAGE_SUB CACHE)
 
 # Include
 set(CAMERA_MOTION_EXTRACTION_INCLUDE ${image_transport_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${sensor_msgs_INCLUDE_DIRS} ${cv_bridge_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
