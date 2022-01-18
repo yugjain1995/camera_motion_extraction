@@ -1,2 +1,2 @@
-# camera_motion_extraction
-Extract robot motion from camera frames
+# motion_extraction
+Estimate motion
