@@ -3,13 +3,11 @@
 
 /// [headers]
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <sensor_msgs/image_encodings.h>
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
-
-#include <boost/log/trivial.hpp>
-#include <chrono>
 /// [headers]
 
 void imageCallback(const sensor_msgs::ImageConstPtr& msg)
@@ -17,7 +15,7 @@ void imageCallback(const sensor_msgs::ImageConstPtr& msg)
   try
   {
     cv::imshow("view", cv_bridge::toCvShare(msg, "mono8")->image);
-    ROS_INFO("Image recieved");
+    ROS_INFO("Image recieved\n");
     cv::waitKey(30);
   }
   catch (cv_bridge::Exception& e)
