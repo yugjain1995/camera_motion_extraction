@@ -15,10 +15,13 @@ find_packages(${DEPENDENCIES})
 # Add executable
 if(TEST_IMAGE_SUB)
   add_executable(camera_motion_extraction image_subscriber.cpp)
+  unset(TEST_IMAGE_SUB CACHE)
+elseif(TEST_KEYPOINT_DETECTION)
+  add_executable(camera_motion_extraction feature_extraction.cpp)
+  unset(TEST_KEYPOINT_DETECTION CACHE)
 else()
-  add_executable(camera_motion_extraction feature_extraction.cpp feature_matching.cpp motion_extraction.cpp)
+  add_executable(camera_motion_extraction feature_matching.cpp motion_extraction.cpp)
 endif()
-unset(TEST_IMAGE_SUB CACHE)
 
 # Include
 set(CAMERA_MOTION_EXTRACTION_INCLUDE ${image_transport_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${sensor_msgs_INCLUDE_DIRS} ${cv_bridge_INCLUDE_DIRS} ${rosconsole_INCLUDE_DIRS})
