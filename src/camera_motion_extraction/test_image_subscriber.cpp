@@ -1,6 +1,5 @@
 
 /// [headers]
-#define DISPLAY_ON
 #include<image_subscriber.h>
 /// [headers]
 
