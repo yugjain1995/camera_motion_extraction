@@ -5,6 +5,6 @@
 
 int main(int argc, char **argv){
     RosToCvmat img_conv;
-    img_conv.imageSubscriber(argc, argv);
+    img_conv.imageSubscriber(true, argc, argv);
     return 0;
 }
