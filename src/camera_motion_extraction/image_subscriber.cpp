@@ -24,47 +24,25 @@ void RosToCvmat::imageCallback(const sensor_msgs::ImageConstPtr& msg)
   }
 }
 
-// Subscribe to image and display
-void RosToCvmat::imageCallbackWithDisplay(const sensor_msgs::ImageConstPtr& msg)
-{
-  try
-  {
-    image = cv_bridge::toCvShare(msg, "mono8")->image;
-    cv::imshow("view", image);
-    cv::waitKey(30);
-    ROS_INFO("Image recieved");
-  }
-  catch (cv_bridge::Exception& e)
-  {
-    ROS_ERROR("Could not convert from '%s' to 'mono8'.", msg->encoding.c_str());
-  }
-}
-
-// Initialization
-void RosToCvmat::imageSubscriber(int &argc, char** &argv){
-  ros::init(argc, argv, "image_listener");
-  ros::NodeHandle nh;
-  image_transport::ImageTransport it(nh);
-  image_transport::Subscriber image_sub = it.subscribe("camera/image", 1, &RosToCvmat::imageCallback, this);
-  ros::spin();
-}
-
-// Subscribe and display
 void RosToCvmat::imageSubscriber(bool displayOn, int &argc, char** &argv){
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
-  if(displayOn == true){
+  image_transport::Subscriber image_sub = it.subscribe("camera/image", 1, &RosToCvmat::imageCallback, this);
+  if(displayOn){
     cv::namedWindow("view");
+    while(nh.ok()){
+      ros::spinOnce();
+      if(!image.empty()){
+        cv::imshow("view", image);
+        cv::waitKey(30);
+      }
+    }
   }
   else{
-    RosToCvmat::imageSubscriber(argc, argv);
-  }
-  image_transport::Subscriber image_sub = it.subscribe("camera/image", 1, &RosToCvmat::imageCallbackWithDisplay, this);
-  if(displayOn == true){
     ros::spin();
   }
-  if(displayOn == true){
+  if(displayOn){
     cv::destroyWindow("view");
   }
 }
