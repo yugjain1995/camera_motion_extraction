@@ -5,6 +5,6 @@ Use the TEST_IMAGE_SUB=True to build for image subscription (image_subscriber.cp
 
 catkin build -DTEST_IMAGE_SUB=True
 
-Use the TEST_KEYPOINT_DETECTION=True to build for ORB keypoint detection (feature_extraction.cpp) test
+Use the TEST_KEYPOINT_DETECTION=True to build for ORB keypoint detection (feature_detection.cpp) test
 
 catkin build -DTEST_KEYPOINT_DETECTION=True
