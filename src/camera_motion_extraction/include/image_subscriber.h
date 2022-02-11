@@ -8,9 +8,9 @@ class RosToCvmat
 {
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr&);
-
-public:
+protected:
     cv::Mat image;
+public:
     void imageSubscriber(bool displayOn, int &argc, char** &argv);
     virtual void imageCompute();
 };

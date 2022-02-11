@@ -1,0 +1,4 @@
+1) Add descriptor calculator function in feature_detection.cpp
+2) Add feature matching code using these descriptors
+3) Add code to visually display matched features
+4) Add code to calculate motion from the pixel shift of the keypoints
