@@ -10,11 +10,15 @@
 class FeatureDetector: public RosToCvmat {
   private:
     cv::Ptr<cv::ORB> orb;
+
   protected:
     std::vector<cv::KeyPoint> keypoints;
+    cv::Mat descriptors;
     cv::Mat keypointImage;
     void detectFeatures();
     void displayKeypoints();
+    void computeDescriptors();
+
   public:
     FeatureDetector();
     virtual void imageCompute();

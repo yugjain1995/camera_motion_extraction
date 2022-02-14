@@ -4,6 +4,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/highgui/highgui.hpp>
 #include<image_subscriber.h>
+#include <chrono>
 /// [headers]
 
 // Subscribe to image but, do not display
@@ -35,20 +36,34 @@ void RosToCvmat::imageSubscriber(bool displayOn, int &argc, char** &argv){
   if(displayOn){
     cv::namedWindow("view");
     while(nh.ok()){
+      auto start = std::chrono::high_resolution_clock::now();
+
       ros::spinOnce();
       if(!image.empty()){
         cv::imshow("view", image);
         cv::waitKey(30);
         imageCompute();
       }
+
+      auto stop = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+      auto frame_rate = 1000/(float)duration.count();
+      ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
     }
   }
   else{
     while(nh.ok()){
+      auto start = std::chrono::high_resolution_clock::now();
+
       ros::spinOnce();
       if(!image.empty()){
         imageCompute();
       }
+
+      auto stop = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+      auto frame_rate = 1000/(float)duration.count();
+      ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
     }
   }
   if(displayOn){

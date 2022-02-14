@@ -19,18 +19,27 @@ FeatureDetector::FeatureDetector(){
 void FeatureDetector::detectFeatures(){
 /// Check that image is not empty
   if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
-/// Get feature points
+/// Detect feature points
   orb->detect(image, keypoints, cv::noArray());
   return;
 }
 
+void FeatureDetector::computeDescriptors(){
+  /// Check that image is not empty
+  if(image.empty()){ROS_ERROR("Image frame is empty!!"); return;}
+  /// Check that keypoints is not empty
+  if(keypoints.empty()){ROS_ERROR("No keypoints!!"); return;}
+  /// Compute descriptors from provided image and corresponding keypoints
+  orb->compute(image, keypoints, descriptors);
+  if(descriptors.empty()){ROS_WARN("Not able to compute descriptors!!");}
+}
 
 void FeatureDetector::displayKeypoints(){
   if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
   if(keypoints.empty()){ROS_ERROR("No keypoints"); return;}
 
 /// Create window
-  cv::namedWindow("view1");
+  cv::namedWindow("Detected Kepoints");
 
 /// Draw keypoints on image
   cv::drawKeypoints(image, keypoints, keypointImage,
@@ -46,5 +55,7 @@ void FeatureDetector::displayKeypoints(){
 void FeatureDetector::imageCompute(){
   detectFeatures();
   displayKeypoints();
+  cv::destroyWindow("Detected Kepoints");
+  computeDescriptors();
   return;
 }
