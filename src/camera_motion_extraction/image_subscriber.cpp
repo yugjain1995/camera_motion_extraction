@@ -28,45 +28,37 @@ void RosToCvmat::imageCompute(){
   return;
 }
 
-void RosToCvmat::imageSubscriber(bool displayOn, int &argc, char** &argv){
+void RosToCvmat::imageSubscriber(int &argc, char** &argv){
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
   image_transport::Subscriber image_sub = it.subscribe("camera/image", 1, &RosToCvmat::imageCallback, this);
-  if(displayOn){
-    cv::namedWindow("view");
-    while(nh.ok()){
-      auto start = std::chrono::high_resolution_clock::now();
 
-      ros::spinOnce();
-      if(!image.empty()){
-        cv::imshow("view", image);
+  #ifdef DEBUG_MODE
+    cv::namedWindow("Recived image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Recived image", 1920, 1080);
+  #endif
+
+  while(nh.ok()){
+    auto start = std::chrono::high_resolution_clock::now();
+
+    ros::spinOnce();
+    if(!image.empty()){
+      #ifdef DEBUG_MODE
+        cv::imshow("Recived image", image);
         cv::waitKey(30);
-        imageCompute();
-      }
+      #endif
 
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-      auto frame_rate = 1000/(float)duration.count();
-      ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
+      imageCompute();
     }
-  }
-  else{
-    while(nh.ok()){
-      auto start = std::chrono::high_resolution_clock::now();
 
-      ros::spinOnce();
-      if(!image.empty()){
-        imageCompute();
-      }
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    auto frame_rate = 1000/(float)duration.count();
+    ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
+  }
 
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-      auto frame_rate = 1000/(float)duration.count();
-      ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
-    }
-  }
-  if(displayOn){
-    cv::destroyWindow("view");
-  }
+  #ifdef DEBUG_MODE
+    cv::destroyWindow("Recived image");
+  #endif
 }

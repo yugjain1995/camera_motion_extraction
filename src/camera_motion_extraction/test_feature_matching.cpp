@@ -1,12 +1,12 @@
 /// header
-#include<feature_detection.h>
+#include<feature_matching.h>
 #include <string>
 /// header
 
 int main(int argc, char **argv){
 
   // Test feature detection
-  FeatureDetector test;
+  FeatureMatcher test;
   test.imageSubscriber(argc, argv);
   return 0;
 }

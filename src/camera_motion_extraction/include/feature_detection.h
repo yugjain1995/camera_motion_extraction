@@ -15,9 +15,9 @@ class FeatureDetector: public RosToCvmat {
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
     cv::Mat keypointImage;
-    void detectFeatures();
+    bool detectFeatures();
     void displayKeypoints();
-    void computeDescriptors();
+    bool computeDescriptors();
 
   public:
     FeatureDetector();

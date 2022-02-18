@@ -16,46 +16,48 @@ FeatureDetector::FeatureDetector(){
   }
 }
 
-void FeatureDetector::detectFeatures(){
-/// Check that image is not empty
-  if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
+bool FeatureDetector::detectFeatures(){
 /// Detect feature points
   orb->detect(image, keypoints, cv::noArray());
-  return;
+
+/// Check that keypoints is not empty
+  if(keypoints.empty()){ROS_ERROR("No keypoints found!!"); return 1;}
+  
+  return 0;
 }
 
-void FeatureDetector::computeDescriptors(){
-  /// Check that image is not empty
-  if(image.empty()){ROS_ERROR("Image frame is empty!!"); return;}
-  /// Check that keypoints is not empty
-  if(keypoints.empty()){ROS_ERROR("No keypoints!!"); return;}
-  /// Compute descriptors from provided image and corresponding keypoints
+bool FeatureDetector::computeDescriptors(){
+/// Compute descriptors from provided image and corresponding keypoints
   orb->compute(image, keypoints, descriptors);
-  if(descriptors.empty()){ROS_WARN("Not able to compute descriptors!!");}
+
+/// Check is descriptors computed successfully
+  if(descriptors.empty()){ROS_WARN("Not able to compute descriptors!!"); return 1;}
+  
+  return 0;
 }
 
 void FeatureDetector::displayKeypoints(){
-  if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
-  if(keypoints.empty()){ROS_ERROR("No keypoints"); return;}
-
-/// Create window
-  cv::namedWindow("Detected Kepoints");
-
 /// Draw keypoints on image
   cv::drawKeypoints(image, keypoints, keypointImage,
                   cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 
 /// Put the image with keypoints on view
-  if(keypointImage.empty()){ROS_ERROR("Image frame is empty"); return;}
-  cv::imshow("view1", keypointImage);
+  if(keypointImage.empty()){ROS_ERROR("keypointImage frame is empty"); return;}
+  /// Create window
+  cv::namedWindow("Detected Kepoints", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Detected Kepoints", 1920, 1080);
+  cv::imshow("Detected Kepoints", keypointImage);
   cv::waitKey(30);
   return;
 }
 
 void FeatureDetector::imageCompute(){
-  detectFeatures();
-  displayKeypoints();
-  cv::destroyWindow("Detected Kepoints");
-  computeDescriptors();
+  if(detectFeatures()) return;
+
+  #ifdef DEBUG_MODE
+    displayKeypoints();
+  #endif
+  
+  if(computeDescriptors()) return;
   return;
 }

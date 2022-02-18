@@ -11,7 +11,7 @@ private:
 protected:
     cv::Mat image;
 public:
-    void imageSubscriber(bool displayOn, int &argc, char** &argv);
+    void imageSubscriber(int &argc, char** &argv);
     virtual void imageCompute();
 };
 

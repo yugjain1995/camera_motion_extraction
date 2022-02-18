@@ -12,6 +12,12 @@ macro(find_packages)
 endmacro()
 find_packages(${DEPENDENCIES})
 
+# Preprocessor
+if(DEBUG_MODE)
+  add_compile_definitions(DEBUG_MODE)
+  unset(DEBUD_MODE CACHE)
+endif()
+
 # Add executable
 if(TEST_IMAGE_SUB)
   add_executable(camera_motion_extraction test_image_subscriber.cpp image_subscriber.cpp)
@@ -19,6 +25,9 @@ if(TEST_IMAGE_SUB)
 elseif(TEST_KEYPOINT_DETECTION)
   add_executable(camera_motion_extraction test_feature_detection.cpp feature_detection.cpp image_subscriber.cpp)
   unset(TEST_KEYPOINT_DETECTION CACHE)
+elseif(TEST_FEATURE_MATCHING)
+  add_executable(camera_motion_extraction test_feature_matching.cpp feature_matching.cpp feature_detection.cpp image_subscriber.cpp)
+  unset(TEST_FEATURE_MATCHING CACHE)
 else()
   add_executable(camera_motion_extraction feature_matching.cpp motion_extraction.cpp)
 endif()
