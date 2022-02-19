@@ -1,3 +1,13 @@
+/************************************************************************************
+Author - Yug Jain
+***********************************************************************************/
+
+/************************************************************************************
+This code provide function definitions for FeatureDetector class which can be used to
+compute image keyopoint and corresponding descriptor for an image. image is recieveing
+code is inheriited from class RosToCvmat.
+************************************************************************************/
+
 /// [headers]
 #include <ros/console.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -5,6 +15,7 @@
 #include <chrono>
 /// [headers]
 
+/******************************************************************/
 FeatureDetector::FeatureDetector(){
   orb = cv::ORB::create(100, 1.1f, 16, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
   if(orb != NULL){
@@ -15,36 +26,64 @@ FeatureDetector::FeatureDetector(){
     ROS_ERROR("cv::ORB returned NULL");
   }
 }
+/******************************************************************/
 
-void FeatureDetector::detectFeatures(){
-/// Check that image is not empty
-  if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
-/// Get feature points
+
+/******************************************************************/
+/// Finds ORB keypoints
+/// If unable to detect keypoints then returns 1
+bool FeatureDetector::detectFeatures(){
+/// Detect feature points
   orb->detect(image, keypoints, cv::noArray());
-  return;
+
+/// Check that keypoints is not empty
+  if(keypoints.empty()){ROS_ERROR("No keypoints found!!"); return 1;}
+  
+  return 0;
 }
+/*******************************************************************/
 
 
+/******************************************************************/
+/// Computes descriptors for ORB keypoints
+/// If unable to compute descriptors then returns 1
+bool FeatureDetector::computeDescriptors(){
+/// Compute descriptors from provided image and corresponding keypoints
+  orb->compute(image, keypoints, descriptors);
+
+/// Check if descriptors are computed successfully
+  if(descriptors.empty()){ROS_WARN("Not able to compute descriptors!!"); return 1;}
+  
+  return 0;
+}
+/******************************************************************/
+
+
+/******************************************************************/
 void FeatureDetector::displayKeypoints(){
-  if(image.empty()){ROS_ERROR("Image frame is empty"); return;}
-  if(keypoints.empty()){ROS_ERROR("No keypoints"); return;}
-
-/// Create window
-  cv::namedWindow("view1");
-
 /// Draw keypoints on image
   cv::drawKeypoints(image, keypoints, keypointImage,
                   cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 
-/// Put the image with keypoints on view
-  if(keypointImage.empty()){ROS_ERROR("Image frame is empty"); return;}
-  cv::imshow("view1", keypointImage);
+/// Create window and put the image with keypoints on window
+  cv::namedWindow("Detected Kepoints", cv::WINDOW_NORMAL);
+  cv::resizeWindow("Detected Kepoints", 1920, 1080);
+  cv::imshow("Detected Kepoints", keypointImage);
   cv::waitKey(30);
   return;
 }
+/******************************************************************/
 
+
+/******************************************************************/
 void FeatureDetector::imageCompute(){
-  detectFeatures();
-  displayKeypoints();
+  if(detectFeatures()) return;
+
+  #ifdef DEBUG_MODE
+    displayKeypoints();
+  #endif
+  
+  if(computeDescriptors()) return;
   return;
 }
+/******************************************************************/
