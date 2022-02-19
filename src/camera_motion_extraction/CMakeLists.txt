@@ -15,7 +15,7 @@ find_packages(${DEPENDENCIES})
 # Preprocessor
 if(DEBUG_MODE)
   add_compile_definitions(DEBUG_MODE)
-  unset(DEBUD_MODE CACHE)
+  unset(DEBUG_MODE CACHE)
 endif()
 
 # Add executable

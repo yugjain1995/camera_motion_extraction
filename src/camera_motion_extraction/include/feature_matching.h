@@ -7,6 +7,7 @@
 #include<feature_detection.h>
 /// header
 
+
 class FeatureMatcher: public FeatureDetector {
   private:
     cv::Ptr<cv::BFMatcher> bruteForceMatcher;
@@ -14,15 +15,15 @@ class FeatureMatcher: public FeatureDetector {
     cv::Mat matchedImage;
     
   protected:
-    cv::Mat image1;
-    std::vector<cv::KeyPoint> keypoints1;
-    cv::Mat descriptors1;
+    cv::Mat preImage; // Previously recieved image
+    std::vector<cv::KeyPoint> keypoints1; // Keypoints calculated for preImage
+    cv::Mat descriptors1; // Descriptors calculated for preImage
     void match();
 
   public:
     FeatureMatcher();
+    void makePrevious();
     void imageCompute();
 };
-
 
 #endif

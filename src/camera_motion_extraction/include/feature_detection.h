@@ -7,22 +7,24 @@
 #include<image_subscriber.h>
 /// header
 
+
 class FeatureDetector: public RosToCvmat {
   private:
+  /// ORB object used to get 
+  /// image keypoints and corresponding descriptors 
     cv::Ptr<cv::ORB> orb;
 
   protected:
     std::vector<cv::KeyPoint> keypoints;
     cv::Mat descriptors;
-    cv::Mat keypointImage;
+    cv::Mat keypointImage; // Image with keypoints overlayed
     bool detectFeatures();
-    void displayKeypoints();
+    void displayKeypoints(); // Displays keypointImage
     bool computeDescriptors();
 
   public:
     FeatureDetector();
     virtual void imageCompute();
 };
-
 
 #endif

@@ -1,3 +1,14 @@
+/************************************************************************************
+Author - Yug Jain
+***********************************************************************************/
+
+/************************************************************************************
+This code provide function definitions for FeatureMatcher class which can be used to
+compute keypoint match for kepoints of two images. Keypoints and descriptors are
+computed using inherited class FeatureDetector.
+************************************************************************************/
+
+
 /// [headers]
 #include <ros/console.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -6,22 +17,42 @@
 #include <chrono>
 /// [headers]
 
+
+/******************************************************************/
 FeatureMatcher::FeatureMatcher(){
   bruteForceMatcher = cv::BFMatcher::create(cv::NORM_HAMMING2, true);
 }
+/******************************************************************/
 
+
+/******************************************************************/
+void FeatureMatcher::makePrevious(){
+  /// Copy the latest recieved image and corresponding
+  /// keypoints and descriptors to variable storing previous 
+  /// image and corresponding keypoints and descriptors
+  /// to match with next latest image
+    preImage = image.clone();
+    keypoints1 = keypoints;
+    descriptors1 = descriptors.clone();
+}
+/******************************************************************/
+
+
+/******************************************************************/
 void FeatureMatcher::imageCompute(){
-  if(image1.empty()){
+  if(preImage.empty()){
     ROS_WARN("No previous image!!");
     if(image.empty()){
       ROS_ERROR("No current image!!");
       return;
     }
-    detectFeatures();
-    computeDescriptors();
-    image1 = image.clone();
-    keypoints1 = keypoints;
-    descriptors1 = descriptors.clone();
+
+  /// Detect keypoints and compute descriptors for latest
+  /// recieved image.
+    if(detectFeatures()) return;
+    if(computeDescriptors()) return;
+
+    makePrevious();
   }
   else{
     if(image.empty()){
@@ -29,13 +60,12 @@ void FeatureMatcher::imageCompute(){
       return;
     }
     else{
-    /// Detect features on latest feteched image
+    /// Detect keypoints and compute descriptors for latest
+    /// recieved image.
       if(detectFeatures()) return;
-
-    /// Compute descriptors for latest feteched image
       if(computeDescriptors()) return;
 
-    /// Match the keypoints
+    /// Match the keypoints with previous image
       match();
 
     /// Display keypoint matching
@@ -46,15 +76,17 @@ void FeatureMatcher::imageCompute(){
         cv::waitKey(30);
       #endif
       
-    /// Clone to previous image data member to use it for next cycle
-      image1 = image.clone();
-      keypoints1 = keypoints;
-      descriptors1 = descriptors.clone();
+    /// Make recently recieved image previous
+      makePrevious();
     }
   }
 }
+/******************************************************************/
 
+
+/******************************************************************/
 void FeatureMatcher::match(){
   bruteForceMatcher->match(descriptors, descriptors1, matches);
-  cv::drawMatches(image, keypoints, image1, keypoints1, matches, matchedImage);
+  cv::drawMatches(image, keypoints, preImage, keypoints1, matches, matchedImage);
 }
+/******************************************************************/

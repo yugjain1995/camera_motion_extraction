@@ -1,3 +1,15 @@
+/************************************************************************************
+Author - Yug Jain
+***********************************************************************************/
+
+/************************************************************************************
+This code provides function definition for RosToCvmat class funcions which can be used to 
+recieve image as a ROS message. After receving the image message this code converts 
+the image form ROS message format to cv::Mat format
+which can be used for further computations.
+************************************************************************************/
+
+
 /// [headers]
 #include <ros/ros.h>
 #include <ros/console.h>
@@ -7,7 +19,10 @@
 #include <chrono>
 /// [headers]
 
-// Subscribe to image but, do not display
+
+/******************************************************************/
+/// Get image -> convert to cv::Mat -> and clone to a seperate cv::Mat
+/// for storage and further computation 
 void RosToCvmat::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   try
@@ -20,32 +35,41 @@ void RosToCvmat::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     ROS_ERROR("Could not convert from '%s' to 'mono8'.", msg->encoding.c_str());
   }
 }
+/******************************************************************/
 
+
+/******************************************************************/
 void RosToCvmat::imageCompute(){
-// This function intentionally does nothing here
-// This function is used to as a override to do computions by any
-// class that inherits this class to get image data
+/// This function intentionally does nothing here
+/// This function is used to as a override to do computions by any
+/// class that inherits this class to get image data
   return;
 }
+/******************************************************************/
 
+
+/******************************************************************/
 void RosToCvmat::imageSubscriber(int &argc, char** &argv){
+/// Inintialize node and set-up node as image subscriber
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
   image_transport::Subscriber image_sub = it.subscribe("camera/image", 1, &RosToCvmat::imageCallback, this);
 
+/// Generate a window to display recieved image if DEBUG_MODE is set  
   #ifdef DEBUG_MODE
-    cv::namedWindow("Recived image", cv::WINDOW_NORMAL);
-    cv::resizeWindow("Recived image", 1920, 1080);
+    cv::namedWindow("Received image", cv::WINDOW_NORMAL);
+    cv::resizeWindow("Received image", 1920, 1080);
   #endif
 
+/// Listen to image topic and perform computations as necessary 
   while(nh.ok()){
     auto start = std::chrono::high_resolution_clock::now();
 
     ros::spinOnce();
     if(!image.empty()){
       #ifdef DEBUG_MODE
-        cv::imshow("Recived image", image);
+        cv::imshow("Received image", image);
         cv::waitKey(30);
       #endif
 
@@ -58,7 +82,9 @@ void RosToCvmat::imageSubscriber(int &argc, char** &argv){
     ROS_INFO_STREAM( "Compute Frame rate = " << std::to_string(frame_rate) << std::endl );
   }
 
+/// Display image recieved if DEBUG_MODE is set
   #ifdef DEBUG_MODE
-    cv::destroyWindow("Recived image");
+    cv::destroyWindow("Received image");
   #endif
 }
+/******************************************************************/
