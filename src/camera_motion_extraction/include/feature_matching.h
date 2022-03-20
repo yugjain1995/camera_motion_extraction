@@ -23,7 +23,7 @@ class FeatureMatcher: public FeatureDetector {
   public:
     FeatureMatcher();
     void makePrevious();
-    void imageCompute();
+    virtual void imageCompute();
 };
 
 #endif
