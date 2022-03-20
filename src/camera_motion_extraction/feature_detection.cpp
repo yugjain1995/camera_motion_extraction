@@ -17,8 +17,8 @@ code is inheriited from class RosToCvmat.
 
 /******************************************************************/
 FeatureDetector::FeatureDetector(){
-  orb = cv::ORB::create(100, 1.1f, 16, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
-  if(orb != NULL){
+  this->orb = cv::ORB::create(100, 1.1f, 16, 31, 0, 2, cv::ORB::HARRIS_SCORE, 31, 20);
+  if(this->orb != NULL){
     ROS_INFO("cv::ORB object created");
   }
   else
@@ -34,10 +34,10 @@ FeatureDetector::FeatureDetector(){
 /// If unable to detect keypoints then returns 1
 bool FeatureDetector::detectFeatures(){
 /// Detect feature points
-  orb->detect(image, keypoints, cv::noArray());
+  this->orb->detect(this->image, this->keypoints, cv::noArray());
 
 /// Check that keypoints is not empty
-  if(keypoints.empty()){ROS_ERROR("No keypoints found!!"); return 1;}
+  if(this->keypoints.empty()){ROS_ERROR("No keypoints found!!"); return 1;}
   
   return 0;
 }
@@ -49,10 +49,10 @@ bool FeatureDetector::detectFeatures(){
 /// If unable to compute descriptors then returns 1
 bool FeatureDetector::computeDescriptors(){
 /// Compute descriptors from provided image and corresponding keypoints
-  orb->compute(image, keypoints, descriptors);
+  this->orb->compute(this->image, this->keypoints, this->descriptors);
 
 /// Check if descriptors are computed successfully
-  if(descriptors.empty()){ROS_WARN("Not able to compute descriptors!!"); return 1;}
+  if(this->descriptors.empty()){ROS_WARN("Not able to compute descriptors!!"); return 1;}
   
   return 0;
 }
@@ -62,13 +62,13 @@ bool FeatureDetector::computeDescriptors(){
 /******************************************************************/
 void FeatureDetector::displayKeypoints(){
 /// Draw keypoints on image
-  cv::drawKeypoints(image, keypoints, keypointImage,
+  cv::drawKeypoints(this->image, this->keypoints, this->keypointImage,
                   cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
 
 /// Create window and put the image with keypoints on window
   cv::namedWindow("Detected Kepoints", cv::WINDOW_NORMAL);
   cv::resizeWindow("Detected Kepoints", 1920, 1080);
-  cv::imshow("Detected Kepoints", keypointImage);
+  cv::imshow("Detected Kepoints", this->keypointImage);
   cv::waitKey(30);
   return;
 }
@@ -77,13 +77,13 @@ void FeatureDetector::displayKeypoints(){
 
 /******************************************************************/
 void FeatureDetector::imageCompute(){
-  if(detectFeatures()) return;
+  if(this->detectFeatures()) return;
 
   #ifdef DEBUG_MODE
     displayKeypoints();
   #endif
   
-  if(computeDescriptors()) return;
+  if(this->computeDescriptors()) return;
   return;
 }
 /******************************************************************/
