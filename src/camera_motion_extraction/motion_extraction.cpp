@@ -15,10 +15,15 @@ a monocular camera.
 #include <chrono>
 /// [headers]
 
-// 1 weekday
+
 /******************************************************************/
 MotionEstimate2D2D::MotionEstimate2D2D(){
 // Initialize camera intrinsics
+  float fx = 1144.361;
+  float fy = 1147.337;
+  float cx = 966.359;
+  float cy = 548.038;
+  this->K = (Mat_<double>(3,3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
 }
 /******************************************************************/
 
@@ -43,9 +48,10 @@ MotionEstimate2D2D::cameraPoseEstimate(){
 }
 /******************************************************************/
 
-// 1 weekday
+
 /******************************************************************/
 MotionEstimate2D2D::imageCompute(){
-  
+  this->matchAndDisplay();
+  this->cameraPoseEstimate();
 }
 /******************************************************************/

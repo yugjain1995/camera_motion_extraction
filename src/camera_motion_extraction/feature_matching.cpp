@@ -3,7 +3,7 @@ Author - Yug Jain
 ***********************************************************************************/
 
 /************************************************************************************
-This code provide function definitions for FeatureMatcher class which can be used to
+ This code provide function definitions for FeatureMatcher class which can be used to
 compute keypoint match for kepoints of two images. Keypoints and descriptors are
 computed using inherited class FeatureDetector.
 ************************************************************************************/
@@ -20,7 +20,7 @@ computed using inherited class FeatureDetector.
 
 /******************************************************************/
 FeatureMatcher::FeatureMatcher(){
-  this->bruteForceMatcher = cv::BFMatcher::create(cv::NORM_HAMMING2, true);
+  bruteForceMatcher = cv::BFMatcher::create(cv::NORM_HAMMING2, true);
 }
 /******************************************************************/
 
@@ -31,53 +31,60 @@ void FeatureMatcher::makePrevious(){
   /// keypoints and descriptors to variable storing previous 
   /// image and corresponding keypoints and descriptors
   /// to match with next latest image
-    this->preImage = this->image.clone();
-    this->keypoints1 = this->keypoints;
-    this->descriptors1 = this->descriptors.clone();
+    preImage = image.clone();
+    keypoints1 = keypoints;
+    descriptors1 = descriptors.clone();
 }
 /******************************************************************/
 
 
 /******************************************************************/
 void FeatureMatcher::imageCompute(){
-  if(this->preImage.empty()){
+  matchAndDisplay();
+}
+/******************************************************************/
+
+
+/******************************************************************/
+void FeatureMatcher::matchAndDisplay(){
+  if(preImage.empty()){
     ROS_WARN("No previous image!!");
-    if(this->image.empty()){
+    if(image.empty()){
       ROS_ERROR("No current image!!");
       return;
     }
 
   /// Detect keypoints and compute descriptors for latest
   /// recieved image.
-    if(this->detectFeatures()) return;
-    if(this->computeDescriptors()) return;
+    if(detectFeatures()) return;
+    if(computeDescriptors()) return;
 
-    this->makePrevious();
+    makePrevious();
   }
   else{
-    if(this->image.empty()){
+    if(image.empty()){
       ROS_ERROR("No current image!!");
       return;
     }
     else{
     /// Detect keypoints and compute descriptors for latest
     /// recieved image.
-      if(this->detectFeatures()) return;
-      if(this->computeDescriptors()) return;
+      if(detectFeatures()) return;
+      if(computeDescriptors()) return;
 
     /// Match the keypoints with previous image
-      this->match();
+      match();
 
     /// Display keypoint matching
       #ifdef DEBUG_MODE
         cv::namedWindow("Keypoint matching", cv::WINDOW_NORMAL);
         cv::resizeWindow("Keypoint matching", 1920, 1080);
-        cv::imshow("Keypoint matching", this->matchedImage);
+        cv::imshow("Keypoint matching", matchedImage);
         cv::waitKey(30);
       #endif
       
     /// Make recently recieved image previous
-      this->makePrevious();
+      makePrevious();
     }
   }
 }
@@ -86,7 +93,7 @@ void FeatureMatcher::imageCompute(){
 
 /******************************************************************/
 void FeatureMatcher::match(){
-  this->bruteForceMatcher->match(this->descriptors, this->descriptors1, this->matches);
-  cv::drawMatches(this->image, this->keypoints, this->preImage, this->keypoints1, this->matches, this->matchedImage);
+  bruteForceMatchermatch(descriptors, descriptors1, matches);
+  cv::drawMatches(image, keypoints, preImage, keypoints1, matches, matchedImage);
 }
 /******************************************************************/

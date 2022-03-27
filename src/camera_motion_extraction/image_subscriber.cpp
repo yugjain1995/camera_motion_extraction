@@ -27,7 +27,7 @@ void RosToCvmat::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   try
   {
-    this->image = cv_bridge::toCvShare(msg, "mono8")->image.clone();
+    image = cv_bridge::toCvShare(msg, "mono8")->image.clone();
     ROS_INFO("Image recieved");
   }
   catch (cv_bridge::Exception& e)
@@ -73,7 +73,7 @@ void RosToCvmat::imageSubscriber(int &argc, char** &argv){
         cv::waitKey(30);
       #endif
 
-      this->imageCompute();
+      imageCompute();
     }
 
     auto stop = std::chrono::high_resolution_clock::now();
