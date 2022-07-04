@@ -13,14 +13,18 @@ class MotionEstimate2D2D: public FeatureMatcher {
     cv::Mat fundamental_matrix;
     cv::Mat essential_matrix;
     cv::Mat K; // Matrix for camera intrinsics
-    
-  public:
-    cv::Mat R, t;
-    MotionEstimate2D2D();
+    std::vector<cv::Point2f> projPoints1; // Co-ordinates of keypoints querry set
+    std::vector<cv::Point2f> projPoints2; // Co-ordinates of keypoints training set
+    cv::Mat _R, _t;
     void findEssentialMat();
     void cameraPoseEstimate();
     void recoverPose();
+    void decomposeEssentialMat(cv::InputArray, cv::OutputArray, cv::OutputArray, cv::OutputArray);
+    
+  public:
+    MotionEstimate2D2D();
     void imageCompute();
+
 };
 
 #endif

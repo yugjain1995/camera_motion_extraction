@@ -16,6 +16,7 @@ a monocular camera.
 #include <chrono>
 /// [headers]
 
+using namespace cv;
 
 /******************************************************************/
 MotionEstimate2D2D::MotionEstimate2D2D(){
@@ -29,14 +30,14 @@ MotionEstimate2D2D::MotionEstimate2D2D(){
 /******************************************************************/
 
 /******************************************************************/
-MotionEstimate2D2D::imageCompute(){
+void MotionEstimate2D2D::imageCompute(){
   this->matchAndDisplay(); // Compute keypoints and keypoint matches
   this->cameraPoseEstimate();
 }
 /******************************************************************/
 
 /******************************************************************/
-MotionEstimate2D2D::cameraPoseEstimate(){
+void MotionEstimate2D2D::cameraPoseEstimate(){
 // Start the timer
   auto start = std::chrono::high_resolution_clock::now();
 // Get essential matrix from keypoints
