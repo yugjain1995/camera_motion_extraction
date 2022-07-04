@@ -179,3 +179,30 @@ void MotionEstimate2D2D::recoverPose(){
   projPoints2.clear();
 }
 /******************************************************************/
+
+/******************************************************************/
+void MotionEstimate2D2D::decomposeEssentialMat(cv::InputArray _E, cv::OutputArray _R1, 
+                                                cv::OutputArray _R2, cv::OutputArray _t)
+{
+    cv::Mat E = _E.getMat().reshape(1, 3);
+    CV_Assert(E.cols == 3 && E.rows == 3);
+
+    cv::Mat D, U, Vt;
+    cv::SVD::compute(E, D, U, Vt);
+
+    if (determinant(U) < 0) U *= -1.;
+    if (determinant(Vt) < 0) Vt *= -1.;
+
+    cv::Mat W = (cv::Mat_<double>(3, 3) << 0, 1, 0, -1, 0, 0, 0, 0, 1);
+    W.convertTo(W, E.type());
+
+    cv::Mat R1, R2, t;
+    R1 = U * W * Vt;
+    R2 = U * W.t() * Vt;
+    t = U.col(2) * 1.0;
+
+    R1.copyTo(_R1);
+    R2.copyTo(_R2);
+    t.copyTo(_t);
+}
+/******************************************************************/
