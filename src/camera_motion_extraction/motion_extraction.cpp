@@ -67,7 +67,115 @@ void MotionEstimate2D2D::findEssentialMat(){
 /******************************************************************/
 
 /******************************************************************/
-MotionEstimate2D2D::recoverPose(){
+void MotionEstimate2D2D::recoverPose(){
+// Map points from keypoints to points object according to index in
+// matches
+  for(std::vector<cv::DMatch>::iterator it = matches.begin();
+      it != matches.end(); ++it){
+        projPoints1.push_back(keypoints[it->queryIdx].pt);
+        projPoints2.push_back(keypoints1[it->trainIdx].pt);
+  }
+
+// Decompose essential matrix to 2 rotation matrices and translation matrix
+  cv::Mat R1, R2, t;
+  decomposeEssentialMat(essential_matrix, R1, R2, t);
+
+// Triangulate all the points to get the chirality of points w.r.t. to
+// each of the four combinations of camera rotation and translation
   
+  cv::Mat points4D; // Reconstructed points in homogeneous co-ordinates
+  double dist = 50.0; // Ignore far away points
+
+  // Create projMatr1
+    cv::Mat projMatr1 = cv::Mat::eye(3, 4, R1.type());
+
+  cv::Mat projMatr2;
+
+  // Find chirality for R1 and t
+    // Create projMatr2 for R1 and t
+      projMatr2(cv::Range::all(), cv::Range(0, 3)) = R1 * 1.0; projMatr2.col(3) = t * 1.0;
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    cv::Mat mask = points4D.row(2).mul(points4D.row(3)) > 0;
+    points4D.row(0) /= points4D.row(3);
+    points4D.row(1) /= points4D.row(3);
+    points4D.row(2) /= points4D.row(3);
+    points4D.row(3) /= points4D.row(3);
+    mask = (points4D.row(2) < dist) & mask;
+    points4D = projMatr1 * points4D;
+    mask = (points4D.row(2) > 0) & mask;
+    mask = (points4D.row(2) < dist) & mask;
+    int cnt1 = countNonZero(mask);
+
+  // Find chirality for R2 and t
+    // Create projMatr2 for R2 and t
+      projMatr2(cv::Range::all(), cv::Range(0, 3)) = R2 * 1.0; projMatr2.col(3) = t * 1.0;
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    mask = points4D.row(2).mul(points4D.row(3)) > 0;
+    points4D.row(0) /= points4D.row(3);
+    points4D.row(1) /= points4D.row(3);
+    points4D.row(2) /= points4D.row(3);
+    points4D.row(3) /= points4D.row(3);
+    mask = (points4D.row(2) < dist) & mask;
+    points4D = projMatr1 * points4D;
+    mask = (points4D.row(2) > 0) & mask;
+    mask = (points4D.row(2) < dist) & mask;
+    int cnt2 = countNonZero(mask);
+
+  // Find chirality for R1 and -t
+    // Create projMatr2 for R1 and -t
+      projMatr2(cv::Range::all(), cv::Range(0, 3)) = R1 * 1.0; projMatr2.col(3) = -t * 1.0;
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    mask = points4D.row(2).mul(points4D.row(3)) > 0;
+    points4D.row(0) /= points4D.row(3);
+    points4D.row(1) /= points4D.row(3);
+    points4D.row(2) /= points4D.row(3);
+    points4D.row(3) /= points4D.row(3);
+    mask = (points4D.row(2) < dist) & mask;
+    points4D = projMatr1 * points4D;
+    mask = (points4D.row(2) > 0) & mask;
+    mask = (points4D.row(2) < dist) & mask;
+    int cnt3 = countNonZero(mask);
+
+  // Find chirality for R2 and -t
+    // Create projMatr2 for R2 and -t
+      projMatr2(cv::Range::all(), cv::Range(0, 3)) = R2 * 1.0; projMatr2.col(3) = -t * 1.0;
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    cv::triangulatePoints(projMatr1, projMatr2, projPoints1, projPoints2, points4D);
+    mask = points4D.row(2).mul(points4D.row(3)) > 0;
+    points4D.row(0) /= points4D.row(3);
+    points4D.row(1) /= points4D.row(3);
+    points4D.row(2) /= points4D.row(3);
+    points4D.row(3) /= points4D.row(3);
+    mask = (points4D.row(2) < dist) & mask;
+    points4D = projMatr1 * points4D;
+    mask = (points4D.row(2) > 0) & mask;
+    mask = (points4D.row(2) < dist) & mask;
+    int cnt4 = countNonZero(mask);
+
+// Select the the camera pose with highest number of points
+// with positive chirality
+  if(cnt1 >= cnt2 && cnt1 >= cnt3 && cnt1 >= cnt4){
+    R1.copyTo(_R);
+    t.copyTo(_t);
+  }
+  else if(cnt2 >= cnt1 && cnt2 >= cnt3 && cnt2 >= cnt4){
+    R2.copyTo(_R);
+    t.copyTo(_t);      
+  }
+  else if(cnt3 >= cnt1 && cnt3 >= cnt2 && cnt3 >= cnt4){
+      R1.copyTo(_R);
+      t = -t;
+      t.copyTo(_t);    
+  }
+  else{
+      R2.copyTo(_R);
+      t = -t;
+      t.copyTo(_t);    
+  }
+// Clear keypoints co-ordinate vector
+  projPoints1.clear();
+  projPoints2.clear();
 }
 /******************************************************************/
