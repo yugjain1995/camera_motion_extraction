@@ -18,8 +18,19 @@ a monocular camera.
 
 
 /******************************************************************/
+MotionEstimate2D2D::MotionEstimate2D2D(){
+// Initialize camera intrinsics
+  float fx = 1144.361;
+  float fy = 1147.337;
+  float cx = 966.359;
+  float cy = 548.038;
+  this->K = (Mat_<double>(3,3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+}
+/******************************************************************/
+
+/******************************************************************/
 MotionEstimate2D2D::imageCompute(){
-  this->matchAndDisplay();
+  this->matchAndDisplay(); // Compute keypoints and keypoint matches
   this->cameraPoseEstimate();
 }
 /******************************************************************/
@@ -44,23 +55,17 @@ MotionEstimate2D2D::cameraPoseEstimate(){
 /******************************************************************/
 
 /******************************************************************/
-MotionEstimate2D2D::MotionEstimate2D2D(){
-// Initialize camera intrinsics
-  float fx = 1144.361;
-  float fy = 1147.337;
-  float cx = 966.359;
-  float cy = 548.038;
-  this->K = (Mat_<double>(3,3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+void MotionEstimate2D2D::findEssentialMat(){
+  std::vector<cv::Point2f> p1(matches.size()), p2(matches.size());
+
+// Compute fundamental matrix
+  fundamental_matrix = cv::findFundamentalMat(p1, p2, cv::FM_RANSAC, 2, 0.95);
+
+// From camera intrinsics and funtamental matrix compute essential matrix
+  essential_matrix = K.t()*fundamental_matrix*K;
 }
 /******************************************************************/
 
-/******************************************************************/
-MotionEstimate2D2D::findEssentialMat(){
-  
-}
-/******************************************************************/
-
-// 1 weekend
 /******************************************************************/
 MotionEstimate2D2D::recoverPose(){
   
