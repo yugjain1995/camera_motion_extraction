@@ -93,7 +93,7 @@ void FeatureMatcher::matchAndDisplay(){
 
 /******************************************************************/
 void FeatureMatcher::match(){
-  bruteForceMatchermatch(descriptors, descriptors1, matches);
+  bruteForceMatcher->match(descriptors, descriptors1, matches);
   cv::drawMatches(image, keypoints, preImage, keypoints1, matches, matchedImage);
 }
 /******************************************************************/
