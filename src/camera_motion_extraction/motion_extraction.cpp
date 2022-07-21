@@ -31,8 +31,8 @@ MotionEstimate2D2D::MotionEstimate2D2D(){
 
 /******************************************************************/
 void MotionEstimate2D2D::imageCompute(){
-  this->matchAndDisplay(); // Compute keypoints and keypoint matches
-  this->cameraPoseEstimate();
+  matchAndDisplay(); // Compute keypoints and keypoint matches
+  cameraPoseEstimate();
 }
 /******************************************************************/
 
