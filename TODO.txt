@@ -1,12 +1,4 @@
 Bugs -
-The keypoint matching video stream window stops updating when camera is facing a flat textureless surface
-Solution-
-1. Verify if it is keypoint detection or keypoint matching issue
-Keep the camera facing textureless surface.
-Start the processes
-If you get ROS_ERROR saying "No keypoints found!!" then it got stuck at keypoint detection
-If not then dig further down the code to keypoint matching
-
 Image disply slowing down other core computations
 Solution-
 Create a seperate thread for display of imageSubscriber output
@@ -19,8 +11,15 @@ Solution-
 
 Verify that "keypoints1 = keypoints;" in FeatureMatcher::makePrevious() is correct without .clone()
 
+=========================================================================
+Done
+=========================================================================
+The keypoint detection video stream window stops updating when camera is facing a flat textureless surface
+Solution-
+Because no keypoint found on a flat textureless surface.
+
+
 Tests -
-Test changes in imageSubscriber function
 Go through feature detection code and optimize
 Test changes in feature detection code post-optimization
 Go through feature matching code and optimize
@@ -29,3 +28,7 @@ Test motion extraction code to debug
 Go through motion extraction code and optimize
 Test changes in motion extraction code post-optimization
 Test motion extraction
+=========================================================================
+Done
+=========================================================================
+Test changes in imageSubscriber function
