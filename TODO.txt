@@ -1,5 +1,5 @@
 Bugs -
-Image disply slowing down other core computations
+Image display slowing down other core computations
 Solution-
 Create a seperate thread for display of imageSubscriber output
 Create a seperate thread for display of feature detection output
