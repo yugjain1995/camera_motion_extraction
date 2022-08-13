@@ -27,8 +27,10 @@ void RosToCvmat::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 {
   try
   {
+    std::unique_lock<std::mutex> lck (mtx);
     this->image = cv_bridge::toCvShare(msg, "mono8")->image.clone();
     ROS_INFO("Image recieved");
+    imageCompute();
   }
   catch (cv_bridge::Exception& e)
   {
@@ -62,19 +64,23 @@ void RosToCvmat::imageSubscriber(int &argc, char** &argv){
     cv::resizeWindow("Received image", 1920, 1080);
   #endif
 
-/// Listen to image topic and perform computations as necessary 
+/// Listen to image topic and perform computations as necessary
+
+  #ifdef DEBUG_MODE
+    std::future<void> imgDispFut = std::async(std::launch::async, &RosToCvmat::displayRecievedImage, this); // Create a future obj
+  #endif
+
   while(nh.ok()){
     auto start = std::chrono::high_resolution_clock::now();
 
     ros::spinOnce();
-    if(!image.empty()){
-      #ifdef DEBUG_MODE
-        cv::imshow("Received image", image);
-        cv::waitKey(30);
-      #endif
-
-      this->imageCompute();
-    }
+    #ifdef DEBUG_MODE
+      // If thread completed
+      if(imgDispFut.wait_for(std::chrono::seconds(0)) == std::future_status::ready){
+          // Rerun the thread
+          imgDispFut = std::async(std::launch::async, &RosToCvmat::displayRecievedImage, this);
+      }
+    #endif
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -86,5 +92,17 @@ void RosToCvmat::imageSubscriber(int &argc, char** &argv){
   #ifdef DEBUG_MODE
     cv::destroyWindow("Received image");
   #endif
+}
+/******************************************************************/
+
+
+/******************************************************************/
+void RosToCvmat::displayRecievedImage(){
+  if(!image.empty()){
+    std::unique_lock<std::mutex> lck (mtx);
+    cv::imshow("Received image", image);
+    lck.unlock();
+    cv::waitKey(30);
+  }
 }
 /******************************************************************/
