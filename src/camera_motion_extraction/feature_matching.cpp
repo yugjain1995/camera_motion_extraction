@@ -21,6 +21,9 @@ computed using inherited class FeatureDetector.
 /******************************************************************/
 FeatureMatcher::FeatureMatcher(){
   this->bruteForceMatcher = cv::BFMatcher::create(cv::NORM_HAMMING2, true);
+  #ifdef DEBUG_MODE
+    ready1 = true;
+  #endif
 }
 /******************************************************************/
 
@@ -70,13 +73,15 @@ void FeatureMatcher::imageCompute(){
 
     /// Display keypoint matching
       #ifdef DEBUG_MODE
-        cv::namedWindow("Keypoint matching", cv::WINDOW_NORMAL);
-        cv::resizeWindow("Keypoint matching", 1920, 1080);
-        cv::imshow("Keypoint matching", this->matchedImage);
-        cv::waitKey(30);
+        if(ready1){
+          std::thread(&FeatureMatcher::displayMatch, this).detach();
+        }
       #endif
       
     /// Make recently recieved image previous
+    #ifdef DEBUG_MODE
+      std::unique_lock<std::mutex> lck2(mtx2);
+    #endif
       this->makePrevious();
     }
   }
@@ -88,5 +93,43 @@ void FeatureMatcher::imageCompute(){
 void FeatureMatcher::match(){
   this->bruteForceMatcher->match(this->descriptors, this->descriptors1, this->matches);
   cv::drawMatches(this->image, this->keypoints, this->preImage, this->keypoints1, this->matches, this->matchedImage);
+}
+/******************************************************************/
+
+
+/******************************************************************/
+void FeatureMatcher::displayMatch(){
+/// Draw keypoints on image
+  #ifdef DEBUG_MODE
+    ready1 = false;
+    std::unique_lock<std::mutex> lck2(mtx2);
+  #endif
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    cv::drawKeypoints(this->image, this->keypoints, this->keypointImage,
+                      cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+
+    /// Create window and put the image with keypoints on window
+      cv::namedWindow("Keypoint matching", cv::WINDOW_NORMAL);
+      cv::resizeWindow("Keypoint matching", 1920, 1080);
+      cv::imshow("Keypoint matching", this->matchedImage);
+    
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    auto frame_rate = 1000/(float)duration.count();
+    ROS_INFO_STREAM("Matching Display Frame rate = " << std::to_string(frame_rate) << std::endl );
+
+  #ifdef DEBUG_MODE
+    lck2.unlock();
+  #endif
+
+  cv::waitKey(30);
+
+  #ifdef DEBUG_MODE
+    ready1 = true;
+  #endif
+
+  return;
 }
 /******************************************************************/

@@ -15,7 +15,9 @@ class RosToCvmat
 {
 private:
     void imageCallback(const sensor_msgs::ImageConstPtr&);
-    std::mutex mtx;
+    #ifdef DEBUG_MODE
+      std::mutex mtx;
+    #endif
 
 protected:
     cv::Mat image;

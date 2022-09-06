@@ -25,6 +25,9 @@ FeatureDetector::FeatureDetector(){
   {
     ROS_ERROR("cv::ORB returned NULL");
   }
+  #ifdef DEBUG_MODE
+    ready = true;
+  #endif
 }
 /******************************************************************/
 
@@ -62,14 +65,36 @@ bool FeatureDetector::computeDescriptors(){
 /******************************************************************/
 void FeatureDetector::displayKeypoints(){
 /// Draw keypoints on image
-  cv::drawKeypoints(this->image, this->keypoints, this->keypointImage,
-                  cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+  #ifdef DEBUG_MODE
+    ready = false;
+    std::unique_lock<std::mutex> lck1(mtx1);
+  #endif
 
-/// Create window and put the image with keypoints on window
-  cv::namedWindow("Detected Kepoints", cv::WINDOW_NORMAL);
-  cv::resizeWindow("Detected Kepoints", 1920, 1080);
-  cv::imshow("Detected Kepoints", this->keypointImage);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    cv::drawKeypoints(this->image, this->keypoints, this->keypointImage,
+                      cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT);
+
+    /// Create window and put the image with keypoints on window
+      cv::namedWindow("Detected Kepoints", cv::WINDOW_NORMAL);
+      cv::resizeWindow("Detected Kepoints", 1920, 1080);
+      cv::imshow("Detected Kepoints", this->keypointImage);
+    
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    auto frame_rate = 1000/(float)duration.count();
+    ROS_INFO_STREAM("Keypoints Display Frame rate = " << std::to_string(frame_rate) << std::endl);
+
+  #ifdef DEBUG_MODE
+    lck1.unlock();
+  #endif
+
   cv::waitKey(30);
+
+  #ifdef DEBUG_MODE
+    ready = true;
+  #endif
+
   return;
 }
 /******************************************************************/
@@ -77,13 +102,28 @@ void FeatureDetector::displayKeypoints(){
 
 /******************************************************************/
 void FeatureDetector::imageCompute(){
-  if(this->detectFeatures()) return;
+  #ifdef DEBUG_MODE
+    std::unique_lock<std::mutex> lck1(mtx1);
+  #endif
+
+  if(!this->detectFeatures()){
+    /// Raise exception
+  }
+  
+  if(!this->computeDescriptors()){
+    /// Raise exception
+  }
 
   #ifdef DEBUG_MODE
-    displayKeypoints();
+    lck1.unlock();
   #endif
-  
-  if(this->computeDescriptors()) return;
+
+  #ifdef DEBUG_MODE
+    if(ready){
+      std::thread(&FeatureDetector::displayKeypoints, this).detach();
+    }
+  #endif
+
   return;
 }
 /******************************************************************/

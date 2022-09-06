@@ -13,12 +13,17 @@ class FeatureMatcher: public FeatureDetector {
     cv::Ptr<cv::BFMatcher> bruteForceMatcher;
     std::vector<cv::DMatch> matches;
     cv::Mat matchedImage;
+    #ifdef DEBUG_MODE
+      bool ready1;
+      std::mutex mtx2;
+    #endif
     
   protected:
     cv::Mat preImage; // Previously recieved image
     std::vector<cv::KeyPoint> keypoints1; // Keypoints calculated for preImage
     cv::Mat descriptors1; // Descriptors calculated for preImage
     void match();
+    void displayMatch();
 
   public:
     FeatureMatcher();
