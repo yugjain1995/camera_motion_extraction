@@ -1,12 +1,6 @@
 Bugs -
-Image disply slowing down other core computations
-Solution-
-Create a seperate thread for display of imageSubscriber output
-Create a seperate thread for display of feature detection output
-Create a seperate thread for display of feature matching output
-
 In FeatureDetector::detectFeatures(), keypoints.empty() line is redundant once intial set of images have matched
-because the keypoints vector will never br empty after that since it is not cleared anywhere in the code.
+because the keypoints vector will never be empty after that since it is not cleared anywhere in the code.
 Solution-
 
 Verify that "keypoints1 = keypoints;" in FeatureMatcher::makePrevious() is correct without .clone()
@@ -18,6 +12,11 @@ The keypoint detection video stream window stops updating when camera is facing 
 Solution-
 Because no keypoint found on a flat textureless surface.
 
+Image disply slowing down other core computations
+Solution-
+Create a seperate thread for display of imageSubscriber output
+Create a seperate thread for display of feature detection output
+Create a seperate thread for display of feature matching output
 
 Tests -
 Go through feature detection code and optimize
@@ -32,3 +31,7 @@ Test motion extraction
 Done
 =========================================================================
 Test changes in imageSubscriber function
+
+
+Task-
+Add code to log exceptions where /// Raise exception comment is present.
