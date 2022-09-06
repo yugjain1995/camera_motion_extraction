@@ -1,4 +1,37 @@
-1) Add descriptor calculator function in feature_detection.cpp
-2) Add feature matching code using these descriptors
-3) Add code to visually display matched features
-4) Add code to calculate motion from the pixel shift of the keypoints
+Bugs -
+In FeatureDetector::detectFeatures(), keypoints.empty() line is redundant once intial set of images have matched
+because the keypoints vector will never be empty after that since it is not cleared anywhere in the code.
+Solution-
+
+Verify that "keypoints1 = keypoints;" in FeatureMatcher::makePrevious() is correct without .clone()
+
+=========================================================================
+Done
+=========================================================================
+The keypoint detection video stream window stops updating when camera is facing a flat textureless surface
+Solution-
+Because no keypoint found on a flat textureless surface.
+
+Image disply slowing down other core computations
+Solution-
+Create a seperate thread for display of imageSubscriber output
+Create a seperate thread for display of feature detection output
+Create a seperate thread for display of feature matching output
+
+Tests -
+Go through feature detection code and optimize
+Test changes in feature detection code post-optimization
+Go through feature matching code and optimize
+Test changes in feature matching code post-optimization
+Test motion extraction code to debug
+Go through motion extraction code and optimize
+Test changes in motion extraction code post-optimization
+Test motion extraction
+=========================================================================
+Done
+=========================================================================
+Test changes in imageSubscriber function
+
+
+Task-
+Add code to log exceptions where /// Raise exception comment is present.

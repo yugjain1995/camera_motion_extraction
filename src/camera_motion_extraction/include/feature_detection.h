@@ -5,6 +5,10 @@
 /// header
 #include <opencv2/features2d.hpp>
 #include<image_subscriber.h>
+#include <thread>
+//#include <future>
+#include <mutex>
+#include <atomic>
 /// header
 
 
@@ -13,6 +17,11 @@ class FeatureDetector: public RosToCvmat {
   /// ORB object used to get 
   /// image keypoints and corresponding descriptors 
     cv::Ptr<cv::ORB> orb;
+    #ifdef DEBUG_MODE
+      //std::future<void> imgDispFut1;
+      bool ready;
+      std::mutex mtx1;
+    #endif
 
   protected:
     std::vector<cv::KeyPoint> keypoints;
